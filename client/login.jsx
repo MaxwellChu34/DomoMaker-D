@@ -1,5 +1,6 @@
 const helper = require('./helper.js');
 const React = require('react');
+const { useState, useEffect } = React;
 const {createRoot} = require('react-dom/client');
 
 const handleLogin = (e) => {
@@ -18,7 +19,7 @@ const handleLogin = (e) => {
     return false;
 }
 
-const handleSignup = (e) => {
+const handleSignup = (e, onUserAdded) => {
     e.preventDefault();
     helper.hideError();
 
@@ -36,7 +37,7 @@ const handleSignup = (e) => {
         return false;
     }
 
-    helper.sendPost(e.target.action, {username, pass, pass2});
+    helper.sendPost(e.target.action, {username, pass, pass2}, onUserAdded);
 
     return false;
 }
@@ -63,7 +64,7 @@ const SignupWindow = (props) => {
     return (
         <form id="signupForm"
             name="signupForm"
-            onSubmit={handleSignup}
+            onSubmit={(e) => handleSignup(e, props.triggerReload)}
             action="/signup"
             method="POST"
             className="mainForm"
@@ -79,9 +80,56 @@ const SignupWindow = (props) => {
     );
 };
 
+const GetUsers = (props) => {
+    const [users, setUsers] = useState(props.users);
+    console.log(users);
+    useEffect(() => {
+        const loadUsersFromServer = async () => {
+            const response = await fetch('/getAccounts');
+            const data = await response.json();
+            setUsers(data);
+        };
+        loadUsersFromServer();
+    }, [props.reloadUsers]);
+
+    if(users.length === 0) {
+        return (
+            <div className="userList">
+                <h3 className="emptyDomo">No Logins Yet!</h3>
+            </div>
+        );
+    }
+
+    const userNodes = users.map(account => {
+        return (
+            <div className="users">
+                <h3 className="user">Username: {account.username}</h3>
+            </div>
+        );
+    });
+
+    return (
+        <div className="userList">
+            {userNodes}
+        </div>
+    );
+}
+
+const AdminWindow = () => {
+    const [reloadUsers, setReloadUsers] = useState(false);
+
+    return (
+        <div id="users">
+            <p>This is a list of all usernames that have logged into this system.</p>
+            <GetUsers users={[]} reloadUsers={reloadUsers} />
+        </div>
+    );
+}
+
 const init = () => {
     const loginButton = document.getElementById('loginButton');
     const signupButton = document.getElementById('signupButton');
+    const adminButton = document.getElementById('adminButton');
 
     const root = createRoot(document.getElementById('content'));
 
@@ -96,6 +144,12 @@ const init = () => {
         root.render( <SignupWindow /> );
         return false;
     });
+
+    adminButton.addEventListener('click', (e) => {
+        e.preventDefault();
+        root.render( <AdminWindow /> );
+        return false;
+    })
 
     root.render( <LoginWindow /> );
 };
