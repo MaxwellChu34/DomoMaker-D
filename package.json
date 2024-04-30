@@ -1,7 +1,7 @@
 {
-  "name": "domomaker",
+  "name": "Final Project",
   "version": "1.0.0",
-  "description": "A Simple Login Example using Node.js, Mongo and Redis",
+  "description": "IGME 430 Final Project",
   "main": "./server/app.js",
   "scripts": {
     "webpack": "webpack",
@@ -18,7 +18,7 @@
     "Redis",
     "Login"
   ],
-  "author": "Cody Van De Mark / Austin Willoughby",
+  "author": "Maxwell Chu",
   "license": "Apache 2.0",
   "devDependencies": {
     "@babel/core": "^7.24.4",
